@@ -2,6 +2,10 @@ const express = require('express');
 
 const app = express();
 
+var cors = require('cors')
+
+app.use(cors()) // Use this after the variable declaration
+
 app.use('/home', require('./routes/api/home'));
 app.use('/analytics', require('./routes/api/analytics'));
 app.use('/drops', require('./routes/api/drops'));
