@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import axios from "axios"
+
 import { fetchCollections } from "../../../apis/AnalyticsAPIs";
 import { useQuery } from "react-query";
 import { Progress } from "reactstrap";
@@ -12,6 +14,98 @@ import ETHIcon from "../../../assets/image/ETH-icon.png";
 import TableAdminImage from "../../../assets/image/table-admin-img1.png";
 
 const TopCollection = () => {
+
+  const [collectionData, setCollectionData] = useState([]);
+
+  const getRound = (val) => {
+    return Number((val).toFixed(2));
+  }
+
+  useEffect(() => {
+    axios.get('https://api.nftgo.io/api/v2/ranking/collections?offset=0&limit=50&by=marketCap&asc=-1&rarity=-1&keyword=&fields=marketCap,marketCapRanking,marketCapChange24h,buyerNum24h,buyerNum24hChange24h,sellerNum24h,sellerNum24hChange24h,liquidity24h,liquidity24hChange24h,saleNum24h,saleNum24hChange24h,volume24h,volume24hChange24h,traderNum24h,traderNum24hChange24h,holderNum,holderNumChange24h,whaleNum,whaleNumChange24h,orderAvgPriceETH24h,orderAvgPriceETH24hChange24h,orderAvgPrice24h,orderAvgPrice24hChange24h,floorPrice,floorPriceChange24h,blueChipHolderNum,blueChipHolderNumChange24h,blueChipHolderRatio,whaleRatio')
+      .then(res => {
+        setCollectionData(res.data.data.list);
+        console.log(res);
+      });
+  }, []);
+
+  let cnt = 0;
+  const tableDataContent = useMemo(() => collectionData.map(row => {
+    return (
+      <tr>
+        <td className="bg-3b3363">
+          {/*<span>01</span>*/}
+          <img
+            src={row.logo}
+            alt="table-admin-img1"
+            className="img-fluid nft-avatar"
+          />
+          <p className="d-inline-block mb-0">{row.name}</p>
+        </td>
+        <td className="bg-3b3363">
+          <p>{getRound(row.marketCap)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*  className="bg-ff4c41"*/}
+            {/*  value={c.market_cap_24}*/}
+            {/*  style={{*/}
+            {/*    width: c.market_cap_24,*/}
+            {/*    height: "8px",*/}
+            {/*  }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <span className="d-block  color-68cf29">{getRound(row.marketCapChange24h * 100)}</span>
+        </td>
+        <td className="bg-3b3363">
+          <p>{getRound(row.volume24h)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*  className="bg-ff4c41"*/}
+            {/*  value={c.volume}*/}
+            {/*  style={{*/}
+            {/*    width: c.volume,*/}
+            {/*    height: "8px",*/}
+            {/*  }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+        <td className="bg-3b3363">{getRound(row.volume24h * 7)}</td>
+        <td className="bg-3b3363">
+          <img src={ETHIcon} alt="ETH-icon" className="img-fluid" />
+          <p className="d-inline-block">{row.floorPrice.tokenPrice}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*  className="bg-5b5288"*/}
+            {/*  value={c.floor_price}*/}
+            {/*  color={"ff4c41"}*/}
+            {/*  style={{*/}
+            {/*    width: c.floor_price,*/}
+            {/*    height: "8px",*/}
+            {/*  }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+        <td className="bg-3b3363">{getRound(row.floorPrice.tokenPrice * 7)}</td>
+        <td className="bg-3b3363">
+          <p>{row.whaleNum}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*  className="bg-5b5288"*/}
+            {/*  value={c.whales}*/}
+            {/*  color={"ff4c41"}*/}
+            {/*  style={{*/}
+            {/*    width: c.whales,*/}
+            {/*    height: "8px",*/}
+            {/*  }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+      </tr>
+    );
+  }), [collectionData]);
+
   return (
     <>
       <section className="w-100 float-left banner-con design-img main-box">
@@ -102,77 +196,7 @@ const TopCollection = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="bg-3b3363">
-                  {/*<span>01</span>*/}
-                  <img
-                    src={TableAdminImage}
-                    alt="table-admin-img1"
-                    className="img-fluid"
-                  />
-                  <p className="d-inline-block mb-0">collection</p>
-                </td>
-                <td className="bg-3b3363">
-                  <p>market_cap</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*  className="bg-ff4c41"*/}
-                    {/*  value={c.market_cap_24}*/}
-                    {/*  style={{*/}
-                    {/*    width: c.market_cap_24,*/}
-                    {/*    height: "8px",*/}
-                    {/*  }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <span className="d-block  color-68cf29">market_cap_24</span>
-                </td>
-                <td className="bg-3b3363">
-                  <p>volume</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*  className="bg-ff4c41"*/}
-                    {/*  value={c.volume}*/}
-                    {/*  style={{*/}
-                    {/*    width: c.volume,*/}
-                    {/*    height: "8px",*/}
-                    {/*  }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363"></td>
-                <td className="bg-3b3363">
-                  <img src={ETHIcon} alt="ETH-icon" className="img-fluid" />
-                  <p className="d-inline-block">floor_price</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*  className="bg-5b5288"*/}
-                    {/*  value={c.floor_price}*/}
-                    {/*  color={"ff4c41"}*/}
-                    {/*  style={{*/}
-                    {/*    width: c.floor_price,*/}
-                    {/*    height: "8px",*/}
-                    {/*  }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363"></td>
-                <td className="bg-3b3363">
-                  <p>whales</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*  className="bg-5b5288"*/}
-                    {/*  value={c.whales}*/}
-                    {/*  color={"ff4c41"}*/}
-                    {/*  style={{*/}
-                    {/*    width: c.whales,*/}
-                    {/*    height: "8px",*/}
-                    {/*  }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-              </tr>
+              {tableDataContent}
               <tr className="border-0">
                 <td className="bg-3b3363">
                   <span>Showing 1 - 50 out of totalRecords</span>

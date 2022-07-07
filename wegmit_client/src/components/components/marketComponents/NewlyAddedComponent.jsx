@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import axios from "axios";
+
+
 import MarketTabs from "./TabsComponent";
 import { useQuery } from "react-query";
 import { fetchNewlyAdded } from "../../../apis/AnalyticsAPIs";
@@ -9,6 +12,72 @@ import LineChart from "../charts/LineChartComponent";
 import { Progress } from "reactstrap";
 
 const NewlyAdded = () => {
+  const [collectionData, setCollectionData] = useState([]);
+
+  const getRound = (val) => {
+    return Number((val).toFixed(2));
+  }
+
+
+  useEffect(() => {
+    axios.get('https://api.nftgo.io/api/v1/ranking/new-added-coll-list?offset=0&limit=10000&by=listedTime&rarity=-1&interval=24h&asc=-1&fields=marketCap,marketCapChange24h,volume24h,floorPrice,minterNum,whaleMinterNum,totalMintGas,listedTime')
+      .then(res => {
+        setCollectionData(res.data.data.list);
+
+      });
+  }, []);
+
+  const tableDataContent = useMemo(() => collectionData.map(row => {
+    return (<tr>
+      <td className="bg-3b3363">
+        {/*<span>01</span>*/}
+        <img
+          src={row.logo}
+          alt="table-admin-img1"
+          className="img-fluid nft-avatar"
+        />
+        <p className="d-inline-block mb-0">{row.name}</p>
+      </td>
+      <td className="bg-3b3363">
+        <p>{getRound(row.marketCap)}</p>
+        <div className="bg-5b5288 table-progress-bar">
+        </div>
+      </td>
+      <td className="bg-3b3363">
+        <span className="d-block  color-68cf29">{row.marketCapChange24h}</span>
+      </td>
+      <td className="bg-3b3363">
+        <p>{getRound(row.volume24h)}</p>
+        <div className="bg-5b5288 table-progress-bar">
+
+        </div>
+      </td>
+      <td className="bg-3b3363">{row.floorPrice.tokenPrice}</td>
+      <td className="bg-3b3363">
+        <img src={ETHIcon} alt="ETH-icon" className="img-fluid" />
+        <p className="d-inline-block">{row.minterNum}</p>
+        <div className="bg-5b5288 table-progress-bar">
+
+        </div>
+      </td>
+      <td className="bg-3b3363">
+        <p>{row.whaleMinterNum}</p>
+      </td>
+      <td className="bg-3b3363">
+        <p>{getRound(row.totalMintGas)}</p>
+        <div className="bg-5b5288 table-progress-bar">
+
+        </div>
+      </td>
+      <td className="bg-3b3363">
+        <p>added</p>
+        <div className="bg-5b5288 table-progress-bar">
+
+        </div>
+      </td>
+    </tr>)
+  }), [collectionData])
+
   return (
     <>
       <section className="w-100 float-left banner-con design-img main-box">
@@ -103,92 +172,7 @@ const NewlyAdded = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="bg-3b3363">
-                  {/*<span>01</span>*/}
-                  <img
-                    src={AdminIcon}
-                    alt="table-admin-img1"
-                    className="img-fluid"
-                  />
-                  <p className="d-inline-block mb-0">collection</p>
-                </td>
-                <td className="bg-3b3363">
-                  <p>market_cap</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                              className="bg-ff4c41"
-                              value={n.market_cap_24}
-                              style={{
-                                width: n.market_cap_24,
-                                height: "8px",
-                              }}
-                            /> */}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <span className="d-block  color-68cf29">market_cap_24</span>
-                </td>
-                <td className="bg-3b3363">
-                  <p>volume</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                              className="bg-ff4c41"
-                              value={n.volume}
-                              style={{
-                                width: n.volume,
-                                height: "8px",
-                              }}
-                            /> */}
-                  </div>
-                </td>
-                <td className="bg-3b3363"></td>
-                <td className="bg-3b3363">
-                  <img src={ETHIcon} alt="ETH-icon" className="img-fluid" />
-                  <p className="d-inline-block">n.minters</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                              className="bg-5b5288"
-                              value={n.minters}
-                              color={"ff4c41"}
-                              style={{
-                                width: n.minters,
-                                height: "8px",
-                              }}
-                            /> */}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p>whale_minters</p>
-                </td>
-                <td className="bg-3b3363">
-                  <p>total_mint_gas</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*    className="bg-5b5288"*/}
-                    {/*    value={n.total_mint_gas}*/}
-                    {/*    color={"ff4c41"}*/}
-                    {/*    style={{*/}
-                    {/*        width: n.total_mint_gas,*/}
-                    {/*        height: "8px",*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p>added</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*    className="bg-ff4c41"*/}
-                    {/*    value={n.added}*/}
-                    {/*    style={{*/}
-                    {/*        width: n.added,*/}
-                    {/*        height: "8px",*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-              </tr>
+              {tableDataContent}
               <tr className="border-0">
                 <td className="bg-3b3363">
                   <span>Showing 1 - 50 out of totalRecords</span>

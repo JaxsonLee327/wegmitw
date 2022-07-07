@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import axios from "axios";
 import MarketTabs from "./TabsComponent";
 import { fetchLeadership } from "../../../apis/AnalyticsAPIs";
 import { useQuery } from "react-query";
@@ -6,6 +7,180 @@ import { Link } from "react-router-dom";
 import { Progress } from "reactstrap";
 
 const Leaderboard = () => {
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [topBuyer, setTopBuyer] = useState([]);
+  const [topSeller, setTopSeller] = useState([]);
+
+  const getRound = (val) => {
+
+    return Number((val).toFixed(2));
+  }
+
+  useEffect(() => {
+    axios.get('https://api.nftgo.io/api/v1/ranking/leaderboard-profit-list?by=pnl')
+      .then(res => {
+        setLeaderboardData(res.data.data.slice(0, 10));
+      });
+
+    axios.get('https://api.nftgo.io/api/v1/ranking/leaderboard-topBuyer-list?timeRank=24h&by=buyVolume')
+      .then(res => {
+        setTopBuyer(res.data.data.slice(0, 10));
+      });
+
+    axios.get('https://api.nftgo.io/api/v1/ranking/leaderboard-topSeller-list?timeRank=24h&by=sellVolume')
+      .then(res => {
+        setTopSeller(res.data.data.slice(0, 10));
+      });
+  }, []);
+
+  const leaderboardContent = useMemo(() => leaderboardData.map(row => {
+    return (
+      <tr>
+        <td className="bg-3b3363">
+          {/*<span>01</span>*/}
+          {/*<img*/}
+          {/*  src="assets/image/small-fish-icon.png"*/}
+          {/*  alt="small-fish-icon"*/}
+          {/*  className="img-fluid"*/}
+          {/*/>*/}
+          <p className="d-inline-block mb-0">
+            <Link to={"#"}>{(row.address + '').substr(0, 10)}</Link>
+          </p>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right d-block">{getRound(row.pnl)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/* <Progress
+                    className="bg-ff4c41"
+                    value={l.pnl}
+                    style={{ width: l.pnl, height: "8px" }}
+                  /> */}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right d-block">{getRound(row.buyVolume)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/* <Progress
+                    className="bg-ff4c41"
+                    value={l.buy_volume}
+                    style={{ width: l.buy_volume, height: "8px" }}
+                  /> */}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right d-block">{getRound(row.sellVolume)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/* <Progress
+                    className="bg-ff4c41"
+                    value={l.sell_volume}
+                    style={{ width: l.sell_volume, height: "8px" }}
+                  /> */}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right d-block">{row.sent}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/* <Progress
+                    className="bg-5b5288"
+                    color={"ff4c41"}
+                    value={l.sent}
+                    style={{ width: l.sent, height: "8px" }}
+                  /> */}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right d-block">{row.received}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/* <Progress
+                    className="bg-5b5288"
+                    value={l.received}
+                    color={"ff4c41"}
+                    style={{ width: l.received, height: "8px" }}
+                  /> */}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right d-block">{row.mint}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/* <Progress
+                    className="bg-5b5288"
+                    value={l.minted}
+                    color={"ff4c41"}
+                    style={{ width: l.minted, height: "8px" }}
+                  /> */}
+          </div>
+        </td>
+      </tr>
+    );
+  }), [leaderboardData]);
+
+  const topBuyersContent = useMemo(() => topBuyer.map(row => {
+    return (
+      <tr>
+        <td className="bg-3b3363">
+          {/*<span>01</span>*/}
+          <Link to={"#"} className="d-inline-block mb-0">
+            {(row.addr + '').substr(0, 10)}
+          </Link>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right d-block">{getRound(row.buyVolume)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/* <Progress
+                      className="bg-ff4c41"
+                      value={t.buy_volume}
+                      style={{ width: t.buy_volume, height: "8px" }}
+                    /> */}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-center d-block mb-0">
+            {row.buyTimes}
+          </p>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-center d-block mb-0">
+            {row.buyCollNum}
+          </p>
+        </td>
+      </tr>
+    )
+  }), [topBuyer]);
+
+  const topSellersContent = useMemo(() => topSeller.map(row => {
+    return (
+      <tr>
+        <td className="bg-3b3363">
+          {/*<span>01</span>*/}
+          <Link to={"#"} className="d-inline-block mb-0"></Link>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right d-block">{(row.addr + '').substr(0, 10)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/* <Progress
+                      className="bg-ff4c41"
+                      value={t.sell_volume}
+                      style={{
+                        width: t.sell_volume,
+                        height: "8px",
+                      }}
+                    /> */}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-center d-block mb-0">
+            {row.sellTimes}
+          </p>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-center d-block mb-0">
+            {row.sellCollNum}
+          </p>
+        </td>
+      </tr>
+    )
+  }), [topSeller]);
+
   return (
     <>
       <section className="w-100 float-left banner-con design-img main-box">
@@ -81,82 +256,7 @@ const Leaderboard = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="bg-3b3363">
-                  {/*<span>01</span>*/}
-                  {/*<img*/}
-                  {/*  src="assets/image/small-fish-icon.png"*/}
-                  {/*  alt="small-fish-icon"*/}
-                  {/*  className="img-fluid"*/}
-                  {/*/>*/}
-                  <p className="d-inline-block mb-0">
-                    <Link to={"#"}>Address</Link>
-                  </p>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right d-block">PNL</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                            className="bg-ff4c41"
-                            value={l.pnl}
-                            style={{ width: l.pnl, height: "8px" }}
-                          /> */}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right d-block">BUY VOLUME</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                            className="bg-ff4c41"
-                            value={l.buy_volume}
-                            style={{ width: l.buy_volume, height: "8px" }}
-                          /> */}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right d-block">SELL VOLUME</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                            className="bg-ff4c41"
-                            value={l.sell_volume}
-                            style={{ width: l.sell_volume, height: "8px" }}
-                          /> */}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right d-block">SENT</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                            className="bg-5b5288"
-                            color={"ff4c41"}
-                            value={l.sent}
-                            style={{ width: l.sent, height: "8px" }}
-                          /> */}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right d-block">RECIEVEED</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                            className="bg-5b5288"
-                            value={l.received}
-                            color={"ff4c41"}
-                            style={{ width: l.received, height: "8px" }}
-                          /> */}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right d-block">MINTED</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/* <Progress
-                            className="bg-5b5288"
-                            value={l.minted}
-                            color={"ff4c41"}
-                            style={{ width: l.minted, height: "8px" }}
-                          /> */}
-                  </div>
-                </td>
-              </tr>
+              {leaderboardContent}
               <tr className="border-0">
                 <td className="bg-3b3363">
                   <span>Showing 1-10 out of 90</span>
@@ -269,34 +369,7 @@ const Leaderboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td className="bg-3b3363">
-                      {/*<span>01</span>*/}
-                      <Link to={"#"} className="d-inline-block mb-0">
-                        ADDRESS
-                      </Link>
-                    </td>
-                    <td className="bg-3b3363">
-                      <p className="text-right d-block">BUY VOLUME</p>
-                      <div className="bg-5b5288 table-progress-bar">
-                        {/* <Progress
-                                  className="bg-ff4c41"
-                                  value={t.buy_volume}
-                                  style={{ width: t.buy_volume, height: "8px" }}
-                                /> */}
-                      </div>
-                    </td>
-                    <td className="bg-3b3363">
-                      <p className="text-center d-block mb-0">
-                        {/* {t.bought} */}
-                      </p>
-                    </td>
-                    <td className="bg-3b3363">
-                      <p className="text-center d-block mb-0">
-                        {/* {t.collections} */}
-                      </p>
-                    </td>
-                  </tr>
+                  {topBuyersContent}
                   <tr className="border-0">
                     <td className="bg-3b3363">
                       <span>Showing 1-10 out of 90</span>
@@ -385,7 +458,7 @@ const Leaderboard = () => {
                     </th>
                     <th className="bg-5b5288">
                       <i className="fas fa-caret-down mr-2 text-white"></i>{" "}
-                      Bought <i className="fas fa-info-circle ml-2"></i>
+                      Sold <i className="fas fa-info-circle ml-2"></i>
                     </th>
                     <th className="bg-5b5288">
                       <i className="fas fa-caret-down mr-2 text-white"></i>{" "}
@@ -394,35 +467,7 @@ const Leaderboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td className="bg-3b3363">
-                      {/*<span>01</span>*/}
-                      <Link to={"#"} className="d-inline-block mb-0"></Link>
-                    </td>
-                    <td className="bg-3b3363">
-                      <p className="text-right d-block"></p>
-                      <div className="bg-5b5288 table-progress-bar">
-                        {/* <Progress
-                                  className="bg-ff4c41"
-                                  value={t.sell_volume}
-                                  style={{
-                                    width: t.sell_volume,
-                                    height: "8px",
-                                  }}
-                                /> */}
-                      </div>
-                    </td>
-                    <td className="bg-3b3363">
-                      <p className="text-center d-block mb-0">
-                        {/* {t.sold} */}
-                      </p>
-                    </td>
-                    <td className="bg-3b3363">
-                      <p className="text-center d-block mb-0">
-                        {/* {t.collections} */}
-                      </p>
-                    </td>
-                  </tr>
+                  {topSellersContent}
 
                   <tr className="border-0">
                     <td className="bg-3b3363">

@@ -61,23 +61,21 @@ import axios from "axios";
 const Home = () => {
   //  const dispatch = useDispatch();
 
-  const [formData, setFormData] = useState({
-    buyerData: [],
-    dropsData: []
-  });
-
-  const { buyerData, dropsData } = formData;
+  const [buyerData, setBuyerData] = useState([]);
+  const [dropsData, setDropsData] = useState([]);
 
   useEffect(() => {
-    axios.post('http://localhost:5000/home/buyers')
-      .then((res) => {
-        setFormData({ ...formData, ['buyerData']: res.data.data.list });
+    axios.get('https://api.nftgo.io/api/v2/ranking/collections?offset=0&limit=10&by=volume24h&asc=-1&rarity=-1&keyword=&fields=marketCap,marketCapRanking,marketCapChange24h,buyerNum24h,buyerNum24hChange24h,sellerNum24h,sellerNum24hChange24h,liquidity24h,liquidity24hChange24h,saleNum24h,saleNum24hChange24h,volume24h,volume24hChange24h,traderNum24h,traderNum24hChange24h,holderNum,holderNumChange24h,whaleNum,whaleNumChange24h,orderAvgPriceETH24h,orderAvgPriceETH24hChange24h,orderAvgPrice24h,orderAvgPrice24hChange24h,floorPrice,floorPriceChange24h,blueChipHolderNum,blueChipHolderNumChange24h,blueChipHolderRatio,whaleRatio')
+      .then(res => {
+        setBuyerData(res.data.data.list);
       });
 
-    axios.post('http://localhost:5000/home/drops')
+    axios.get('https://api.nftgo.io/api/v1/drop/projects?startTime=1657144800000')
       .then((res) => {
-        setFormData({ ...formData, ['dropsData']: res.data.projects });
+        setDropsData(res.data.data.projects.slice(3, 6));
       });
+
+
   }, []);
 
 
@@ -155,7 +153,7 @@ const Home = () => {
                 <span>Date</span>
               </li>
               <li className="d-inline-block">
-                <span className="pl-0">Apr 08,2022 00:00:00</span>
+                <span className="pl-0">{(new Date(row.startTime).toDateString())}</span>
               </li>
             </ul>
           </div>

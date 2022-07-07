@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import axios from "axios";
 import MarketTabs from "./TabsComponent";
 import { fetchMints } from "../../../apis/AnalyticsAPIs";
 import { useQuery } from "react-query";
@@ -8,6 +9,115 @@ import ETHIcon from "../../../assets/image/ETH-icon.png";
 import { Progress } from "reactstrap";
 
 const TopMint = () => {
+  const [collectionData, setCollectionData] = useState([]);
+
+  const getRound = (val) => {
+    return Number((val).toFixed(2));
+  }
+
+  useEffect(() => {
+    axios.get('https://api.nftgo.io/api/v1/ranking/top-mint?timeRank=5m&by=MintNum&asc=-1&isListed=-1')
+      .then(res => {
+        setCollectionData(res.data.data);
+      });
+  }, []);
+
+
+  let cnt = 0;
+  const tableDataContent = useMemo(() => collectionData.map(row => {
+    return (
+      <tr>
+        <td className="bg-3b3363">
+          <span>{++cnt}</span>
+          <img
+            src={FriendIcon}
+            alt="friend-search-icon"
+            className="img-fluid"
+          />
+          <p className="d-inline-block mb-0">{row.contractName}</p>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right">{row.mintNum}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*    className="bg-5b5288"*/}
+            {/*    value={m.minted}*/}
+            {/*    color={"ff4c41"}*/}
+            {/*    style={{*/}
+            {/*        width: m.minted,*/}
+            {/*        height: "8px",*/}
+            {/*    }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <img src={ETHIcon} alt="ETH-icon" className="img-fluid" />
+          <p className="d-inline-block">{getRound(row.mintVolume)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*    className="bg-5b5288"*/}
+            {/*    value={m.mint_volume}*/}
+            {/*    color={"ff4c41"}*/}
+            {/*    style={{*/}
+            {/*        width: m.mint_volume,*/}
+            {/*        height: "8px",*/}
+            {/*    }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right">{row.minterNum}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*    className="bg-5b5288"*/}
+            {/*    value={m.minters}*/}
+            {/*    color={"ff4c41"}*/}
+            {/*    style={{*/}
+            {/*        width: m.minters,*/}
+            {/*        height: "8px",*/}
+            {/*    }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right">{row.whaleNum}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*    className="bg-5b5288"*/}
+            {/*    value={m.whales}*/}
+            {/*    color={"ff4c41"}*/}
+            {/*    style={{*/}
+            {/*        width: m.whales,*/}
+            {/*        height: "8px",*/}
+            {/*    }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <p className="text-right">{getRound(row.totalGasFee)}</p>
+          <div className="bg-5b5288 table-progress-bar">
+            {/*<Progress*/}
+            {/*    className="bg-5b5288"*/}
+            {/*    value={m.total_gas}*/}
+            {/*    color={"ff4c41"}*/}
+            {/*    style={{*/}
+            {/*        width: m.total_gas,*/}
+            {/*        height: "8px",*/}
+            {/*    }}*/}
+            {/*/>*/}
+          </div>
+        </td>
+        <td className="bg-3b3363">
+          <span></span>
+        </td>
+        <td className="bg-3b3363">
+          <span>{row.fomo}</span>
+        </td>
+      </tr>
+    )
+  }), [collectionData]);
+
+
   return (
     <>
       <section className="w-100 float-left banner-con design-img main-box">
@@ -103,94 +213,7 @@ const TopMint = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="bg-3b3363">
-                  <span>01</span>
-                  <img
-                    src={FriendIcon}
-                    alt="friend-search-icon"
-                    className="img-fluid"
-                  />
-                  <p className="d-inline-block mb-0">collection</p>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right">minted</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*    className="bg-5b5288"*/}
-                    {/*    value={m.minted}*/}
-                    {/*    color={"ff4c41"}*/}
-                    {/*    style={{*/}
-                    {/*        width: m.minted,*/}
-                    {/*        height: "8px",*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <img src={ETHIcon} alt="ETH-icon" className="img-fluid" />
-                  <p className="d-inline-block">mint_volume</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*    className="bg-5b5288"*/}
-                    {/*    value={m.mint_volume}*/}
-                    {/*    color={"ff4c41"}*/}
-                    {/*    style={{*/}
-                    {/*        width: m.mint_volume,*/}
-                    {/*        height: "8px",*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right">minters</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*    className="bg-5b5288"*/}
-                    {/*    value={m.minters}*/}
-                    {/*    color={"ff4c41"}*/}
-                    {/*    style={{*/}
-                    {/*        width: m.minters,*/}
-                    {/*        height: "8px",*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right">whales</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*    className="bg-5b5288"*/}
-                    {/*    value={m.whales}*/}
-                    {/*    color={"ff4c41"}*/}
-                    {/*    style={{*/}
-                    {/*        width: m.whales,*/}
-                    {/*        height: "8px",*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <p className="text-right">total_gas</p>
-                  <div className="bg-5b5288 table-progress-bar">
-                    {/*<Progress*/}
-                    {/*    className="bg-5b5288"*/}
-                    {/*    value={m.total_gas}*/}
-                    {/*    color={"ff4c41"}*/}
-                    {/*    style={{*/}
-                    {/*        width: m.total_gas,*/}
-                    {/*        height: "8px",*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                  </div>
-                </td>
-                <td className="bg-3b3363">
-                  <span>first_mint</span>
-                </td>
-                <td className="bg-3b3363">
-                  <span>fomo</span>
-                </td>
-              </tr>
+              {tableDataContent}
               <tr className="border-0">
                 <td className="bg-3b3363">
                   <span>Showing 1 - 50 out of totalRecords</span>
